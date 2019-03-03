@@ -5,17 +5,8 @@ import jieba.analyse
 import codecs,sys,string,re
 import gensim
 from gensim.models import word2vec
-from sklearn import cross_validation
-from sklearn import svm
 
-data_train = 'data/data_train.csv'
-data_test = 'data/data_test.csv'
-score_list = [0,1,2]
-cate_list = ['食品餐饮', '旅游住宿', '金融服务', '医疗服务', '物流快递']
-model_path = 'data/mymodel2.model'
-model_path_dict = {'食品餐饮': 'data/model-food.model', '旅游住宿': 'data/model-travel.model'
-			, '金融服务': 'data/model-finance.model', '医疗服务': 'data/model-hospital.model'
-			,'物流快递': 'data/model-trans.model'}
+from const_data import *
 
 def get_wordvec(df,mode):
 	stopkey = [w.strip() for w in codecs.open('data/stopWord.txt', 'r', encoding='utf-8').readlines()]
@@ -72,32 +63,6 @@ def get_wordvec(df,mode):
 	return sens_split
 
 
-# def make_single_vec_file():
-# 	file_list = ['data/食品餐饮_0.csv','data/食品餐饮_12.csv']
-# 	for file,i in zip(file_list,range(len(file_list))):
-# 		df=pd.read_csv(file,header=None,sep=',') #filename可以直接从盘符开始，标明每一级的文件夹直到csv文件，header=None表示头部为空，sep=' '表示数据间使用空格作为分隔符，如果分隔符是逗号，只需换成 ‘，’即可。
-# 		df[4] = get_wordvec(df)
-# 		print(str(i))
-# 		df.to_csv('data/食品餐饮_vec'+str(i)+'.csv',header=None,index=False)
-
-
-# def buildmodel():
-# 	file = 'data/食品餐饮.csv'
-# 	df = pd.read_csv(file,header=None,sep=',')
-# 	sens = get_wordvec(df)
-# 	# df[4] = sens
-
-def buildmodel(df,modelpath):
-	model_data = []
-	for index in score_list:
-		model_data += get_wordvec(df[index],'train')
-	mymodel = word2vec.Word2Vec(model_data, min_count=1)
-	mymodel.save(modelpath)
-
-
-
-
-
 
 def getvecs(cate, df):
 		# 构建文档词向量 
@@ -142,18 +107,6 @@ def getvecs(cate, df):
 	return vec_pos_neg
 
 
-	# 	vec_pos_neg[str(i)] = vecs
-	# return vec_pos_neg
-
-
-
-
-		# df[5] = vecs
-	# print(vec_pos_neg)
-	# model = gensim.models.Word2Vec(sens, min_count=1)
-	# model.save('data/mymodel')
-	# df=pd.read_csv('data/食品餐饮_vec1.csv',header=None,sep=',')
-	# print(df.head())
 
 def get_test_value(cate, df,df_cols):
 	mymodel = gensim.models.Word2Vec.load(model_path_dict[cate])
