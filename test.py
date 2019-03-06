@@ -11,7 +11,7 @@ from const_data import *
 from readfile import *
 from word_vec import *
 
-def test(data_input,data_cols, cate):
+def test(data_input,data_cols, cate,punish):
 	vec_input = get_wordvec(data_input,'test')
 	col_value_list = get_test_value(cate,vec_input,data_cols)
 	value_input = [i[1] for i in col_value_list]
@@ -20,8 +20,8 @@ def test(data_input,data_cols, cate):
 	def predict(clf,value_input):
 		score_input =  clf.predict(value_input)
 		return score_input
-	clf1 = joblib.load(svm_model_dict[cate][:-2]+"1.m")
-	clf2 = joblib.load(svm_model_dict[cate][:-2]+"2.m")
+	clf1 = joblib.load(svm_model_dict[cate][:-2]+'c'+str(punish)+"1.m")
+	clf2 = joblib.load(svm_model_dict[cate][:-2]+'c'+str(punish)+"2.m")
 	res = []
 	for col, sen, value, score1 in zip(col_input, data_input, value_input,predict(clf1,value_input)):
 		if score1!=0:
@@ -33,20 +33,21 @@ def test(data_input,data_cols, cate):
 
 
 
-def read_test_file(file):
+def read_test_file(file,index):
 	df=pd.read_csv(file,header=None,sep='\t',names=['col','cate','content','score'],encoding='gbk')
 	# res_dict[cate].setdefault(score,0)
 	res_list = []
+	punish = punish_list[index]
 	for cate in cate_list:
 		# print('*'*50)
 		data = df.loc[df['cate']==cate]
 		# print(cate,': raw-data: ',len(data))
-		test_score = test(data['content'],data['col'],cate)
+		test_score = test(data['content'],data['col'],cate,punish)
 		# print(cate,': test-score: ',len(test_score))
 		res_list = res_list + test_score
 	# res_list = list(zip(range(1,len(res_list)+1),res_list))
-	# res = pd.DataFrame(res_list)
-	# res.to_csv('result/jktian-v3.csv',index=None,header=None,encoding='gbk')
+	res = pd.DataFrame(res_list)
+	res.to_csv('result/jktian-v'+str(index+7)+'.csv',index=None,header=None,encoding='gbk')
 
 
 

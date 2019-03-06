@@ -14,19 +14,19 @@ from readfile import *
 from word_vec import *
 
 
-def buildmodel(df,modelpath):
+def buildmodel(df,modelpath,vsize):
 	model_data = []
 	for index in score_list:
 		model_data += get_wordvec(df[index],'train')
-	mymodel = word2vec.Word2Vec(model_data, min_count=1)
+	mymodel = word2vec.Word2Vec(model_data, size=vsize,min_count=1)
 	mymodel.save(modelpath)
 
 
-def build_all_model():
+def build_all_model(size):
 	cate_score_dict = read_train_file(data_train)
 	for k, v in cate_score_dict.items():
-		buildmodel(v,model_path_dict[k])
+		buildmodel(v,model_path_dict[k],size)
 
 
 if __name__=="__main__":
-	build_all_model()
+	build_all_model(size)

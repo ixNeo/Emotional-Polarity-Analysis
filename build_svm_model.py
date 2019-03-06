@@ -14,14 +14,15 @@ from readfile import *
 from word_vec import *
 
 
-def store_svm():
+def store_svm(punish_index):
 	cate_score_dict = read_train_file(data_train)
 	# lenth = len(cate_score_dict['食品餐饮'][0])
 	# print(lenth)
 	# print(cate_score_dict['食品餐饮'][0][0]['content'])
 	# sens = get_wordvec(cate_score_dict['食品餐饮'][0])
 	for cate, v in cate_score_dict.items():
-		print(cate,'*'*30)
+		if cate == '食品餐饮':	continue
+		# print(cate,'*'*30)
 		vec_pos_neg = getvecs(cate, v)
 		X = []
 		Y = []
@@ -35,23 +36,20 @@ def store_svm():
 					Y1.append(score)
 					score = 1
 				Y.append(score)
-		print(X)
-		print(Y)
-		print('x',len(X))
-		print('y',len(Y))
-		clf1 = svm.SVC(kernel='linear', C=1)
+		# print(X)
+		# print(Y)
+		# print('x',len(X))
+		# print('y',len(Y))
+		punish = punish_list[punish_index]
+		if cate!='旅游住宿':
+			clf1 = svm.SVC(kernel='linear', C=punish)
+			clf1.fit(X,Y)
+			joblib.dump(clf1, svm_model_dict[cate][:-2]+'c'+str(punish)+'1.m')  # 永久保存
 
-		# scores = cross_validation.cross_val_score(clf1, X, Y, cv=3)#5-fold cv
-		# print(scores)
-
-
-		clf1.fit(X,Y)
-		joblib.dump(clf1, svm_model_dict[cate][:-2]+'1.m')  # 永久保存
-
-		clf2 = svm.SVC(kernel='linear', C=1)
+		clf2 = svm.SVC(kernel='linear', C=punish)
 		clf2.fit(X1,Y1)
-		joblib.dump(clf2,  svm_model_dict[cate][:-2]+'2.m')  # 永久保存
+		joblib.dump(clf2,  svm_model_dict[cate][:-2]+'c'+str(punish)+'2.m')  # 永久保存
 
 
 if __name__=="__main__":
-	store_svm()
+	store_svm(4)
